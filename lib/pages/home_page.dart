@@ -18,7 +18,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Center(
         child: IconButton(icon: const Icon(Icons.add),iconSize: 60, onPressed: () async {
-          Level newLevel = await gameBloc.setLevel(3);
+          Level newLevel = await gameBloc.setLevel(1);
           Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
               builder: (_) => GamePage(level: newLevel,)));
         },),

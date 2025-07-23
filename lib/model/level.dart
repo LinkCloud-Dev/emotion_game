@@ -22,8 +22,8 @@ class Level extends Object {
   late List<Objective> _objectives;
 
   /// Variables that depend on the physical layout of the device
-  double tileWidth = 0.0;
-  double tileHeight = 0.0;
+  double tileWidth = 48.0;
+  double tileHeight = 48.0;
   double boardLeft = 0.0;
   double boardTop = 0.0;
 
