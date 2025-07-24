@@ -34,13 +34,13 @@ class _AnimationComboThreeState extends State<AnimationComboThree>
       }
     });
 
-    // 针对不同 tile 类型生成动画
+    // 针对不同tile类型生成动画
     for (Tile tile in widget.combo.tiles) {
       late Animation<double> anim;
+      // 正面情感放大
       final isZoom = tile.type == TileType.yellow || tile.type == TileType.purple;
-
       if (isZoom) {
-        // 放大再缩小
+        // 放大再缩小消失
         anim = TweenSequence([
           TweenSequenceItem(
               tween: Tween<double>(begin: 1.0, end: 1.4)
@@ -52,12 +52,12 @@ class _AnimationComboThreeState extends State<AnimationComboThree>
               weight: 50),
         ]).animate(_controller);
       } else {
-        // 缩小再消失
+        // 负面情感缩小直至消失
         anim = TweenSequence([
           TweenSequenceItem(
               tween: Tween<double>(begin: 1.0, end: 0.0)
                   .chain(CurveTween(curve: Curves.easeOut)),
-              weight: 30),
+              weight: 50),
         ]).animate(_controller);
       }
 
