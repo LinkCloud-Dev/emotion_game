@@ -17,7 +17,7 @@ import '../model/combo.dart';
 import '../model/level.dart';
 import '../model/row_col.dart';
 import '../model/tile.dart';
-import '../panel/moves/game_moves_left_panel.dart';
+import '../panel/moves/game_timer_panel.dart';
 import '../panel/objective/components/objective_panel.dart';
 import '../splash/game_over_splash.dart';
 import '../splash/game_reshuffling_splash.dart';
@@ -79,6 +79,7 @@ class _GamePageState extends State<GamePage>
     _overlayEntryAnimateSwapTiles?.remove();
     _overlayEntryFromTile?.remove();
     _gameSplash?.remove();
+    _gameBloc.stopTimer();
     super.dispose();
   }
 
@@ -109,7 +110,7 @@ class _GamePageState extends State<GamePage>
           onTapUp: _onPanEnd,
           child: Stack(
             children:[
-              _buildMovesLeftPanel(orientation),
+              _buildTimerPanel(orientation),
               _buildObjectivePanel(orientation),
               _buildBoard(),
               _buildTiles(),
@@ -120,26 +121,38 @@ class _GamePageState extends State<GamePage>
     );
   }
 
-  // Builds the score panel
-  Widget _buildMovesLeftPanel(Orientation orientation) {
+  // Builds the timer panel
+  Widget _buildTimerPanel(Orientation orientation) {
     Alignment alignment = orientation == Orientation.portrait
-        ? Alignment.topLeft
-        : Alignment.topLeft;
+        ? Alignment.topCenter
+        : Alignment.topCenter;
     return Align(
       alignment: alignment,
-      child: const GameMovesLeftPanel(),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 50), // 向上移动（顶部留白）
+        child: Transform.scale(
+          scale: 1.4, // 放大 1.4 倍（可以调节大小）
+          child: const GameTimerPanel(),
+        ),
+      ),
     );
   }
 
   // Builds the objective panel
   Widget _buildObjectivePanel(Orientation orientation) {
     Alignment alignment = orientation == Orientation.portrait
-        ? Alignment.topRight
-        : Alignment.bottomLeft;
+        ? Alignment.bottomCenter
+        : Alignment.bottomCenter;
 
     return Align(
       alignment: alignment,
-      child: const ObjectivePanel(),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 50),
+        child: Transform.scale(
+          scale: 1.4, // 放大 1.4 倍（可以调节大小）
+          child: const ObjectivePanel(),
+        ),
+      ),
     );
   }
 
@@ -669,6 +682,9 @@ class _GamePageState extends State<GamePage>
     // No gesture detection during the splash
     _allowGesture = false;
 
+    // Stop the timer and show the splash
+    _gameBloc.stopTimer();
+
     // Show the splash
     _gameSplash = OverlayEntry(
         opaque: false,
@@ -709,6 +725,7 @@ class _GamePageState extends State<GamePage>
 
               // allow gesture detection
               _allowGesture = true;
+              _gameBloc.startTimer();
             },
           );
         });

@@ -1,5 +1,5 @@
 
-import 'package:candycrush/panel/moves/stream_moves_left_counter.dart';
+import 'package:candycrush/panel/timer/stream_timer_counter.dart';
 import 'package:flutter/material.dart';
 
 import 'package:candycrush/bloc/bloc_provider.dart';
@@ -7,8 +7,8 @@ import 'package:candycrush/bloc/game_bloc.dart';
 
 import '../../model/level.dart';
 
-class GameMovesLeftPanel extends StatelessWidget {
-  const GameMovesLeftPanel({super.key});
+class GameTimerPanel extends StatelessWidget {
+  const GameTimerPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class GameMovesLeftPanel extends StatelessWidget {
                     color: Colors.black,
                   )),
             ),
-            const StreamMovesLeftCounter(),
+            const StreamTimeCounter(),
           ],
         ),
       ),

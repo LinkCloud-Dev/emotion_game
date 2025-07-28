@@ -38,7 +38,7 @@ class _AnimationComboThreeState extends State<AnimationComboThree>
     for (Tile tile in widget.combo.tiles) {
       late Animation<double> anim;
       // 正面情感放大
-      final isZoom = tile.type == TileType.yellow || tile.type == TileType.purple;
+      final isZoom = tile.type == TileType.yellow || tile.type == TileType.orange;
       if (isZoom) {
         // 放大再缩小消失
         anim = TweenSequence([

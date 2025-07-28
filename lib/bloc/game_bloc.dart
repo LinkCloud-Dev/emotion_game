@@ -44,10 +44,12 @@ class GameBloc implements BlocBase {
   Stream<bool> get gameIsOver => _gameIsOverController.stream;
 
   //
-  // Controller that emits the number of moves left for the game
+  // Controller that emits the remaining time (seconds) for the game
   //
-  final _movesLeftController = PublishSubject<int>();
-  Stream<int> get movesLeftCount => _movesLeftController.stream;
+  final _timeLeftController = PublishSubject<int>();
+  Stream<int> get timeLeft => _timeLeftController.stream;
+  Timer? _timer;
+  int _currentTime = 0;
 
   //
   // List of all level definitions
@@ -141,21 +143,10 @@ class GameBloc implements BlocBase {
     }
   }
 
-  //
-  // A move has been played, let's decrement the number of moves
-  // left and check if the game is over
-  //
-  void playMove() {
-    int movesLeft = gameController.level.decrementMove();
-
-    // Emit the number of moves left (to refresh the moves left panel)
-    _movesLeftController.sink.add(movesLeft);
-
-    // There is no move left, so inform that the game is over
-    if (movesLeft == 0) {
-      _gameIsOverController.sink.add(false);
-    }
-  }
+  // A move has been played. This was previously used to decrement the number
+  // of moves left.  With the timer based gameplay this method is kept for
+  // compatibility but does nothing.
+  void playMove() {}
 
   //
   // When a game starts, we need to reset everything
@@ -164,11 +155,31 @@ class GameBloc implements BlocBase {
     gameController.level.resetObjectives();
   }
 
+  void startTimer() {
+    _timer?.cancel();
+    _currentTime = gameController.level.maxSeconds;
+    _timeLeftController.sink.add(_currentTime);
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _currentTime = gameController.level.decrementSecond();
+      _timeLeftController.sink.add(_currentTime);
+      if (_currentTime == 0) {
+        timer.cancel();
+        _gameIsOverController.sink.add(false);
+      }
+    });
+  }
+
+  void stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
   @override
   void dispose() {
     _readyToDisplayTilesController.close();
     _objectiveEventsController.close();
     _gameIsOverController.close();
-    _movesLeftController.close();
+    _timeLeftController.close();
+    _timer?.cancel();
   }
 }
