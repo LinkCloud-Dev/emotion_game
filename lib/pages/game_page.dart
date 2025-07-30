@@ -22,6 +22,7 @@ import '../panel/objective/components/objective_panel.dart';
 import '../splash/game_over_splash.dart';
 import '../splash/game_reshuffling_splash.dart';
 import '../splash/game_splash.dart';
+import 'help_page.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({
@@ -58,6 +59,7 @@ class _GamePageState extends State<GamePage>
   OverlayEntry? _overlayEntryAnimateSwapTiles;
   // 1. 新增变量
   bool _showHelpButton = false;
+  bool _helpButtonUsed = false; // 新增变量
   StreamSubscription<int>? _timerSubscription;
   // 1. 动画相关变量
   late AnimationController _helpBtnAnimController;
@@ -89,13 +91,13 @@ class _GamePageState extends State<GamePage>
     // 4. 订阅倒计时并触发动画
     _timerSubscription?.cancel();
     _timerSubscription = _gameBloc.timeLeft.listen((seconds) {
-      if (seconds <= 10 && !_showHelpButton) {
+      if (seconds <= 10 && !_showHelpButton && !_helpButtonUsed) {
         setState(() {
           _showHelpButton = true;
         });
-        _helpBtnAnimController.forward(from: 0); // 启动动画
+        _helpBtnAnimController.forward(from: 0);
       }
-      if (seconds > 10 && _showHelpButton) {
+      if ((seconds > 10 && _showHelpButton) || _helpButtonUsed) {
         setState(() {
           _showHelpButton = false;
         });
@@ -153,19 +155,30 @@ class _GamePageState extends State<GamePage>
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 100),
+                    padding: const EdgeInsets.only(bottom: 100.0),
                     child: ScaleTransition(
                       scale: _helpBtnScaleAnimation,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          minimumSize: const Size(200, 60),
-                          backgroundColor: Colors.green,
+                          minimumSize: const Size(200, 60), // 增大高度
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 20, horizontal: 40),
                         ),
-                        onPressed: () {
-                          // TODO: 实现帮助逻辑
+                        onPressed: () async {
+                          setState(() {
+                            _helpButtonUsed = true;
+                            _showHelpButton = false;
+                          });
+                          _gameBloc.stopTimer();
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => const HelpPage()),
+                          );
+                          _gameBloc.resumeTimer();
                         },
                         child: const Text(
                           'I Need Help',

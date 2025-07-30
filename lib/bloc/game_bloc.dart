@@ -21,8 +21,7 @@ class GameBloc implements BlocBase {
   // at game load is ready.  This is done as soon as this BLoC receives the
   // dimensions/position of the board as well as the dimensions of a tile
   //
-  final  _readyToDisplayTilesController =
-  BehaviorSubject<bool>();
+  final _readyToDisplayTilesController = BehaviorSubject<bool>();
   Function get setReadyToDisplayTiles =>
       _readyToDisplayTilesController.sink.add;
   Stream<bool> get outReadyToDisplayTiles =>
@@ -172,6 +171,18 @@ class GameBloc implements BlocBase {
   void stopTimer() {
     _timer?.cancel();
     _timer = null;
+  }
+
+  void resumeTimer() {
+    if (_timer == null && _currentTime > 0) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        _currentTime = gameController.level.decrementSecond();
+        _timeLeftController.sink.add(_currentTime);
+        if (_currentTime <= 0) {
+          timer.cancel();
+        }
+      });
+    }
   }
 
   @override
