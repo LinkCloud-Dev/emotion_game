@@ -164,7 +164,7 @@ class _GamePageState extends State<GamePage>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          minimumSize: const Size(200, 60), // 增大高度
+                          minimumSize: const Size(200, 60),
                           padding: const EdgeInsets.symmetric(
                               vertical: 20, horizontal: 40),
                         ),
@@ -223,7 +223,7 @@ class _GamePageState extends State<GamePage>
       child: Padding(
         padding: const EdgeInsets.only(bottom: 50, left: 50),
         child: Transform.scale(
-          scale: 1.4, // 放大 1.4 倍（可以调节大小）
+          scale: 1.4,
           child: const ObjectivePanel(),
         ),
       ),
