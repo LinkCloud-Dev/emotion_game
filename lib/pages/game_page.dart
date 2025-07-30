@@ -44,21 +44,37 @@ class _GamePageState extends State<GamePage>
 
   ///记录触发手势的糖果
   Tile? _gestureFromTile;
+
   ///记录触发手势的糖果位置，行和列
   RowCol? _gestureFromRowCol;
+
   ///记录手势的滑动距离
   Offset? _gestureOffsetStart;
+
   ///标记手势是否开始
   bool? _gestureStarted;
   static const double _MIN_GESTURE_DELTA = 2.0;
   OverlayEntry? _overlayEntryFromTile;
   OverlayEntry? _overlayEntryAnimateSwapTiles;
+  // 1. 新增变量
+  bool _showHelpButton = false;
+  StreamSubscription<int>? _timerSubscription;
+  // 1. 动画相关变量
+  late AnimationController _helpBtnAnimController;
+  late Animation<double> _helpBtnScaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _gameOverReceived = false;
     WidgetsBinding.instance.addPostFrameCallback(_showGameStartSplash);
+    // 2. 初始化动画
+    _helpBtnAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _helpBtnScaleAnimation = Tween<double>(begin: 1.5, end: 1.0).animate(
+        CurvedAnimation(parent: _helpBtnAnimController, curve: Curves.easeOut));
   }
 
   @override
@@ -70,10 +86,28 @@ class _GamePageState extends State<GamePage>
     _gameBloc.reset();
     // Listen to "game over" notification
     _gameOverSubscription = _gameBloc.gameIsOver.listen(_onGameOver);
+    // 4. 订阅倒计时并触发动画
+    _timerSubscription?.cancel();
+    _timerSubscription = _gameBloc.timeLeft.listen((seconds) {
+      if (seconds <= 10 && !_showHelpButton) {
+        setState(() {
+          _showHelpButton = true;
+        });
+        _helpBtnAnimController.forward(from: 0); // 启动动画
+      }
+      if (seconds > 10 && _showHelpButton) {
+        setState(() {
+          _showHelpButton = false;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _helpBtnAnimController.dispose();
+    _timerSubscription?.cancel();
+    _timerSubscription = null;
     _gameOverSubscription?.cancel();
     _gameOverSubscription = null;
     _overlayEntryAnimateSwapTiles?.remove();
@@ -109,11 +143,38 @@ class _GamePageState extends State<GamePage>
           onTap: _onTap,
           onTapUp: _onPanEnd,
           child: Stack(
-            children:[
+            children: [
               _buildTimerPanel(orientation),
               _buildObjectivePanel(orientation),
               _buildBoard(),
               _buildTiles(),
+              // 5. 底部弹出绿色按钮加动画
+              if (_showHelpButton)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 100),
+                    child: ScaleTransition(
+                      scale: _helpBtnScaleAnimation,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          minimumSize: const Size(200, 60),
+                          backgroundColor: Colors.green,
+                        ),
+                        onPressed: () {
+                          // TODO: 实现帮助逻辑
+                        },
+                        child: const Text(
+                          'I Need Help',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -141,13 +202,13 @@ class _GamePageState extends State<GamePage>
   // Builds the objective panel
   Widget _buildObjectivePanel(Orientation orientation) {
     Alignment alignment = orientation == Orientation.portrait
-        ? Alignment.bottomCenter
-        : Alignment.bottomCenter;
+        ? Alignment.bottomLeft
+        : Alignment.bottomLeft;
 
     return Align(
       alignment: alignment,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 50),
+        padding: const EdgeInsets.only(bottom: 50, left: 50),
         child: Transform.scale(
           scale: 1.4, // 放大 1.4 倍（可以调节大小）
           child: const ObjectivePanel(),
@@ -165,6 +226,7 @@ class _GamePageState extends State<GamePage>
       ),
     );
   }
+
   // Builds the tiles
   Widget _buildTiles() {
     return StreamBuilder<bool>(
@@ -181,7 +243,6 @@ class _GamePageState extends State<GamePage>
               if (tile.type != TileType.empty &&
                   tile.type != TileType.forbidden &&
                   tile.visible) {
-
                 // Make sure the widget is correctly positioned
                 tile.setPosition();
                 tiles.add(Positioned(
@@ -270,6 +331,7 @@ class _GamePageState extends State<GamePage>
       Overlay.of(context).insert(_overlayEntryFromTile!);
     }
   }
+
   //
   // The pointer starts to move
   //
@@ -324,7 +386,8 @@ class _GamePageState extends State<GamePage>
             rowCol.row == widget.level.numberOfRows) {
           // Not possible, outside the boundaries
         } else {
-          Tile? destTile = _gameBloc.gameController.grid[rowCol.row][rowCol.col];
+          Tile? destTile =
+              _gameBloc.gameController.grid[rowCol.row][rowCol.col];
           bool canBePlayed = false;
 
           if (destTile != null) {
@@ -344,13 +407,13 @@ class _GamePageState extends State<GamePage>
             _overlayEntryFromTile?.remove();
             _overlayEntryFromTile = null;
 
-
             // 2. Generate the up/down tiles
             Tile upTile = _gestureFromTile!.cloneForAnimation();
             Tile downTile = destTile.cloneForAnimation();
 
             // 3. Remove both tiles from the game grid
-            _gameBloc.gameController.grid[rowCol.row][rowCol.col].visible = false;
+            _gameBloc.gameController.grid[rowCol.row][rowCol.col].visible =
+                false;
             _gameBloc
                 .gameController
                 .grid[_gestureFromRowCol!.row][_gestureFromRowCol!.col]
@@ -371,7 +434,8 @@ class _GamePageState extends State<GamePage>
                           .visible = true;
                       _gameBloc
                           .gameController
-                          .grid[_gestureFromRowCol!.row][_gestureFromRowCol!.col]
+                          .grid[_gestureFromRowCol!.row]
+                              [_gestureFromRowCol!.col]
                           .visible = true;
 
                       // 6. Remove the overlay Entry
@@ -381,7 +445,7 @@ class _GamePageState extends State<GamePage>
                       if (swapAllowed == true) {
                         // Remember if the tile we move is a bomb
                         bool isSourceTileABomb =
-                        Tile.isBomb(_gestureFromTile!.type!);
+                            Tile.isBomb(_gestureFromTile!.type!);
 
                         // Swap the 2 tiles，交换目标糖果和原糖果的位置和坐标信息
                         _gameBloc.gameController
@@ -396,7 +460,7 @@ class _GamePageState extends State<GamePage>
 
                         /// Wait for both animations to complete
                         await Future.wait(
-                            [_animateCombo(comboOne),_animateCombo(comboTwo)]);
+                            [_animateCombo(comboOne), _animateCombo(comboTwo)]);
 
                         // Resolve the combos
                         _gameBloc.gameController
@@ -413,6 +477,7 @@ class _GamePageState extends State<GamePage>
                                   type: _gestureFromTile!.type),
                               _gameBloc);
                         }
+
                         /// Proceed with the falling tiles
                         await _playAllAnimations();
 
@@ -435,7 +500,7 @@ class _GamePageState extends State<GamePage>
                       // 7. Reset
                       _allowGesture = true;
                       _onPanEnd(null);
-                      if(mounted){
+                      if (mounted) {
                         setState(() {});
                       }
                     },
@@ -460,11 +525,11 @@ class _GamePageState extends State<GamePage>
       Audio.playAsset(AudioType.bomb);
 
       // Proceed with explosion
-      _gameBloc.gameController.proceedWithExplosion(_gestureFromTile!, _gameBloc);
+      _gameBloc.gameController
+          .proceedWithExplosion(_gestureFromTile!, _gameBloc);
 
       // Rebuild the board and proceed with animations
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-
         // Proceed with the falling tiles
         await _playAllAnimations();
 
@@ -504,7 +569,7 @@ class _GamePageState extends State<GamePage>
 
     switch (combo.type) {
       case ComboType.three:
-      // Hide the tiles before starting the animation
+        // Hide the tiles before starting the animation
         _showComboTilesForAnimation(combo, false);
 
         // Launch the animation for a chain of 3 tiles
@@ -524,7 +589,7 @@ class _GamePageState extends State<GamePage>
 
         // Play sound
         await Audio.playAsset(AudioType.move_down);
-        if(mounted){
+        if (mounted) {
           Overlay.of(context).insert(overlayEntry!);
         }
         break;
@@ -532,12 +597,12 @@ class _GamePageState extends State<GamePage>
       case ComboType.none:
       case ComboType.one:
       case ComboType.two:
-      // These type of combos are not possible, therefore directly return
+        // These type of combos are not possible, therefore directly return
         completer.complete(null);
         break;
 
       default:
-      // Hide the tiles before starting the animation
+        // Hide the tiles before starting the animation
         _showComboTilesForAnimation(combo, false);
 
         // We need to create the resulting tile
@@ -570,22 +635,24 @@ class _GamePageState extends State<GamePage>
 
         // Play sound
         await Audio.playAsset(AudioType.swap);
-        if(mounted){
+        if (mounted) {
           Overlay.of(context).insert(overlayEntry!);
         }
         break;
     }
     return completer.future;
   }
+
   //
   // Routine that launches all animations, resulting from a combo
   //
   Future<dynamic> _playAllAnimations() async {
     final completer = Completer();
+
     /// Determine all animations (and sequence of animations) that
     /// need to be played as a consequence of a combo
     final animationResolver =
-    AnimationsResolver(gameBloc: _gameBloc, level: widget.level);
+        AnimationsResolver(gameBloc: _gameBloc, level: widget.level);
     animationResolver.resolve();
 
     /// Determine the list of cells that are involved in the animation(s)
@@ -596,8 +663,7 @@ class _GamePageState extends State<GamePage>
     }
 
     // Obtain the animation sequences
-    final sequences =
-    animationResolver.getAnimationsSequences();
+    final sequences = animationResolver.getAnimationsSequences();
     int pendingSequences = sequences.length;
 
     /// Make all involved cells invisible
@@ -611,7 +677,6 @@ class _GamePageState extends State<GamePage>
       /// all the animations
       final overlayEntries = <OverlayEntry>[];
       for (final animationSequence in sequences) {
-
         /// Prepare all the animations at once.
         /// This is important to avoid having multiple rebuild
         /// when we are going to put them all on the Overlay
@@ -631,7 +696,6 @@ class _GamePageState extends State<GamePage>
                   // refresh the screen and yied the hand back
                   //
                   if (pendingSequences == 0) {
-
                     // Remove all OverlayEntries
                     for (final entry in overlayEntries) {
                       entry.remove();
@@ -643,7 +707,7 @@ class _GamePageState extends State<GamePage>
                     // We now need to proceed with a final rebuild and yield the hand
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       // Finally, yield the hand
-                      if(!completer.isCompleted){
+                      if (!completer.isCompleted) {
                         completer.complete(null);
                       }
                     });
@@ -661,7 +725,6 @@ class _GamePageState extends State<GamePage>
     setState(() {});
     return completer.future;
   }
-
 
   //
   // The game is over
