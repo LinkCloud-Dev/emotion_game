@@ -29,7 +29,7 @@ class _GameOverSplashState extends State<GameOverSplash>
     super.initState();
 
     _controller = AnimationController(
-      duration: Duration(seconds: 3),
+      duration: const Duration(seconds: 3),
       vsync: this,
     )
       ..addListener(() {

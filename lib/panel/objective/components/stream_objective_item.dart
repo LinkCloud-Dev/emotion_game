@@ -18,7 +18,7 @@ class StreamObjectiveItem extends StatefulWidget {
 
   @override
   StreamObjectiveItemState createState() {
-    return new StreamObjectiveItemState();
+    return StreamObjectiveItemState();
   }
 }
 

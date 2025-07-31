@@ -198,10 +198,19 @@ class _GamePageState extends State<GamePage>
                             _showHelpButton = false;
                           });
                           _gameBloc.stopTimer();
-                          await Navigator.of(context).push(
+                          final int? extraSeconds =
+                              await Navigator.of(context).push<int>(
                             MaterialPageRoute(
                                 builder: (context) => const HelpPage()),
                           );
+
+                          // 如果用户获得了额外时间，增加到当前timer
+                          if (extraSeconds != null && extraSeconds > 0) {
+                            final currentTime =
+                                _gameBloc.gameController.level.secondsLeft;
+                            _gameBloc.setTime(currentTime + extraSeconds);
+                          }
+
                           _gameBloc.resumeTimer();
                         },
                         child: const Text(
@@ -332,7 +341,9 @@ class _GamePageState extends State<GamePage>
     if (rowCol.row < 0 ||
         rowCol.row >= widget.level.numberOfRows ||
         rowCol.col < 0 ||
-        rowCol.col >= widget.level.numberOfCols) return;
+        rowCol.col >= widget.level.numberOfCols) {
+      return;
+    }
 
     // Check if the [row,col] corresponds to a possible swap
     Tile? selectedTile = _gameBloc.gameController.grid[rowCol.row][rowCol.col];

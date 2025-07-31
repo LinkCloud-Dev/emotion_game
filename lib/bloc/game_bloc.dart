@@ -130,11 +130,11 @@ class GameBloc implements BlocBase {
 
     // Check if the game is won
     bool isWon = true;
-    gameController.level.objectives.forEach((Objective objective) {
+    for (var objective in gameController.level.objectives) {
       if (objective.count > 0) {
         isWon = false;
       }
-    });
+    }
 
     // If the game is won, send a notification
     if (isWon) {
