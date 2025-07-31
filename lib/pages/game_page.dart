@@ -20,7 +20,6 @@ import '../model/tile.dart';
 import '../panel/moves/game_timer_panel.dart';
 import '../panel/objective/components/objective_panel.dart';
 import '../splash/game_over_splash.dart';
-import '../splash/game_reshuffling_splash.dart';
 import '../splash/game_splash.dart';
 import 'help_page.dart';
 
@@ -532,7 +531,6 @@ class _GamePageState extends State<GamePage>
 
                         if (!_gameBloc.gameController.stillMovesToPlay()) {
                           // No moves left
-                          await _showReshufflingSplash();
                           _gameBloc.gameController.reshuffling();
                           setState(() {});
                         }
@@ -588,7 +586,6 @@ class _GamePageState extends State<GamePage>
         // Check if there are still moves to play
         if (!_gameBloc.gameController.stillMovesToPlay()) {
           // No moves left
-          await _showReshufflingSplash();
           _gameBloc.gameController.reshuffling();
           setState(() {});
         }
@@ -836,36 +833,5 @@ class _GamePageState extends State<GamePage>
     Overlay.of(context).insert(_gameSplash!);
   }
 
-  //
-  // SplashScreen to indicate that there is no more moves
-  // and a reshuffling is going to happen
-  //
-  Future<void> _showReshufflingSplash() async {
-    Completer completer = Completer();
 
-    // No gesture detection during the splash
-    _allowGesture = false;
-
-    // Show the splash
-    _gameSplash = OverlayEntry(
-        opaque: false,
-        builder: (BuildContext context) {
-          return GameReshufflingSplash(
-            onComplete: () {
-              _gameSplash?.remove();
-              _gameSplash = null;
-
-              // allow gesture detection
-              _allowGesture = true;
-
-              // gives the hand back
-              completer.complete();
-            },
-          );
-        });
-
-    Overlay.of(context).insert(_gameSplash!);
-
-    return completer.future;
-  }
 }

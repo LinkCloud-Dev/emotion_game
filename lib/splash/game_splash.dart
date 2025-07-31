@@ -1,7 +1,7 @@
 import 'package:candycrush/panel/objective/components/objective_item.dart';
 import 'package:flutter/material.dart';
 
-import '../compoents/double_curved_container.dart';
+import '../compoents/rounded_rectangle_container.dart';
 import '../model/level.dart';
 
 class GameSplash extends StatefulWidget {
@@ -84,7 +84,7 @@ class _GameSplashState extends State<GameSplash>
       animation: _animationAppear,
       child: Material(
         color: Colors.transparent,
-        child: DoubleCurvedContainer(
+        child: RoundedRectangleContainer(
           width: screenSize.width,
           height: 150.0,
           outerColor: Colors.blue[700]!,

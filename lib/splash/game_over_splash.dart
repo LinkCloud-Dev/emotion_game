@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../compoents/double_curved_container.dart';
+import '../compoents/rounded_rectangle_container.dart';
 import '../model/level.dart';
 
 class GameOverSplash extends StatefulWidget {
@@ -80,7 +80,7 @@ class _GameOverSplashState extends State<GameOverSplash>
       animation: _animationAppear,
       child: Material(
         color: Colors.transparent,
-        child: DoubleCurvedContainer(
+        child: RoundedRectangleContainer(
           width: screenSize.width,
           height: 150.0,
           outerColor: darkColor,
