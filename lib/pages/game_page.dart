@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:candycrush/controller/game_controller.dart';
 import 'package:flutter/material.dart';
 
 import '../animations/animation_chain.dart';
@@ -8,7 +7,6 @@ import '../animations/animation_combo_three.dart';
 import '../animations/animation_swap_tiles.dart';
 import '../bloc/bloc_provider.dart';
 import '../bloc/game_bloc.dart';
-import '../animations/model/animation_sequence.dart';
 import '../animations/model/animations_resolver.dart';
 import '../compoents/crush_board.dart';
 import '../model/array_2d.dart';
@@ -59,7 +57,6 @@ class _GamePageState extends State<GamePage>
   OverlayEntry? _overlayEntryAnimateSwapTiles;
   // 1. 新增变量
   bool _showHelpButton = false;
-  bool _helpButtonUsed = false; // 新增变量
   int _helpButtonUsageCount = 0; // 新增：记录使用次数
   StreamSubscription<int>? _timerSubscription;
   // 1. 动画相关变量

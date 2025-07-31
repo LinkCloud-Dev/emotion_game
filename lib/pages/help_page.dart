@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../bloc/bloc_provider.dart';
-import '../bloc/game_bloc.dart';
 
 class HelpPage extends StatefulWidget {
   const HelpPage({Key? key}) : super(key: key);
@@ -32,12 +30,11 @@ class _HelpPageState extends State<HelpPage> {
           ),
         ),
         child: SafeArea(
-          // 使用SafeArea确保内容不被状态栏遮挡
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: const [
-              SizedBox(height: 32),
-              Padding(
+            children: [
+              const SizedBox(height: 32),
+              const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
                   'Swipe up to blow out the candle, \nand get 10 extra seconds!',
@@ -50,7 +47,16 @@ class _HelpPageState extends State<HelpPage> {
                   ),
                 ),
               ),
-              // 这里可以继续添加交互内容
+              const SizedBox(height: 32),
+              Center(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Image.asset(
+                    'assets/images/candle/candle_lit.jpg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
