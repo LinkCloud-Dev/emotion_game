@@ -185,6 +185,13 @@ class GameBloc implements BlocBase {
     }
   }
 
+  // 设置剩余时间
+  void setTime(int seconds) {
+    _currentTime = seconds;
+    gameController.level.setSecondsLeft(seconds);
+    _timeLeftController.sink.add(seconds);
+  }
+
   @override
   void dispose() {
     _readyToDisplayTilesController.close();

@@ -60,6 +60,7 @@ class _GamePageState extends State<GamePage>
   // 1. 新增变量
   bool _showHelpButton = false;
   bool _helpButtonUsed = false; // 新增变量
+  int _helpButtonUsageCount = 0; // 新增：记录使用次数
   StreamSubscription<int>? _timerSubscription;
   // 1. 动画相关变量
   late AnimationController _helpBtnAnimController;
@@ -91,13 +92,13 @@ class _GamePageState extends State<GamePage>
     // 4. 订阅倒计时并触发动画
     _timerSubscription?.cancel();
     _timerSubscription = _gameBloc.timeLeft.listen((seconds) {
-      if (seconds <= 10 && !_showHelpButton && !_helpButtonUsed) {
+      if (seconds <= 10 && !_showHelpButton && _helpButtonUsageCount < 3) {
         setState(() {
           _showHelpButton = true;
         });
         _helpBtnAnimController.forward(from: 0);
       }
-      if ((seconds > 10 && _showHelpButton) || _helpButtonUsed) {
+      if ((seconds > 10 && _showHelpButton) || _helpButtonUsageCount >= 3) {
         setState(() {
           _showHelpButton = false;
         });
@@ -133,7 +134,7 @@ class _GamePageState extends State<GamePage>
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/background/background.jpg'),
+            image: AssetImage('assets/images/background/game_background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -150,12 +151,38 @@ class _GamePageState extends State<GamePage>
               _buildObjectivePanel(orientation),
               _buildBoard(),
               _buildTiles(),
-              // 5. 底部弹出绿色按钮加动画
+              // 添加test button
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () {
+                      // 直接设置时间为10秒
+                      _gameBloc.setTime(10);
+                    },
+                    child: const Text(
+                      'Test 10s',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               if (_showHelpButton)
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 100.0),
+                    padding: const EdgeInsets.only(bottom: 300.0),
                     child: ScaleTransition(
                       scale: _helpBtnScaleAnimation,
                       child: ElevatedButton(
@@ -164,13 +191,13 @@ class _GamePageState extends State<GamePage>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          minimumSize: const Size(200, 60),
+                          minimumSize: const Size(350, 80),
                           padding: const EdgeInsets.symmetric(
                               vertical: 20, horizontal: 40),
                         ),
                         onPressed: () async {
                           setState(() {
-                            _helpButtonUsed = true;
+                            _helpButtonUsageCount++;
                             _showHelpButton = false;
                           });
                           _gameBloc.stopTimer();
@@ -182,7 +209,10 @@ class _GamePageState extends State<GamePage>
                         },
                         child: const Text(
                           'I Need Help',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 40,
+                              fontFamily: 'ICELAND'),
                         ),
                       ),
                     ),
@@ -759,9 +789,6 @@ class _GamePageState extends State<GamePage>
     _allowGesture = false;
 
     // Stop the timer and show the splash
-    _gameBloc.stopTimer();
-
-    // Show the splash
     _gameSplash = OverlayEntry(
         opaque: false,
         builder: (BuildContext context) {

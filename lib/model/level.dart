@@ -56,7 +56,6 @@ class Level extends Object {
 
     // First-time initialization
     resetObjectives();
-
   }
 
   // @override
@@ -69,7 +68,6 @@ class Level extends Object {
   int get index => _index;
   int get maxSeconds => _maxSeconds;
   int get secondsLeft => _secondsLeft;
-
 
   List<Objective> get objectives => List.unmodifiable(_objectives);
 
@@ -88,5 +86,12 @@ class Level extends Object {
   //
   int decrementSecond() {
     return (--_secondsLeft).clamp(0, _maxSeconds);
+  }
+
+  //
+  // Set the remaining time
+  //
+  void setSecondsLeft(int seconds) {
+    _secondsLeft = seconds.clamp(0, _maxSeconds);
   }
 }

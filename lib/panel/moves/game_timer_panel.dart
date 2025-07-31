@@ -1,4 +1,3 @@
-
 import 'package:candycrush/panel/timer/stream_timer_counter.dart';
 import 'package:flutter/material.dart';
 
@@ -20,30 +19,22 @@ class GameTimerPanel extends StatelessWidget {
 
     return Padding(
       padding: paddingTop,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[300]!.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(20.0),
-          border: Border.all(width: 5.0, color: Colors.black.withOpacity(0.5)),
-        ),
-        width: 100.0,
-        height: 80.0,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('Level: ${level.index}',
-                  style: const TextStyle(
-                    fontSize: 14.0,
-                    color: Colors.black,
-                  )),
-            ),
-            const StreamTimeCounter(),
-          ],
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text('Level: ${level.index}',
+                style: const TextStyle(
+                  fontFamily: 'ICELAND',
+                  fontSize: 60.0, // 增大字体
+                  color: Colors.white,
+                )),
+          ),
+          const StreamTimeCounter(),
+        ],
       ),
     );
   }
