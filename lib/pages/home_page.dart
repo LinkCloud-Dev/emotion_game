@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../bloc/bloc_provider.dart';
 import '../bloc/game_bloc.dart';
 import 'game_page.dart';
+import 'levels_page.dart';
 import '../model/level.dart';
 
 class HomePage extends StatefulWidget {
@@ -28,8 +29,9 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              // PLAY button
               Padding(
-                padding: const EdgeInsets.only(bottom: 300.0),
+                padding: const EdgeInsets.only(bottom: 20.0),
                 child: Container(
                   width: 350,
                   height: 80,
@@ -48,11 +50,42 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: const Text(
                       'P L A Y',
-                      textAlign: TextAlign.center, // 添加文字居中
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'ICELAND',
                         fontSize: 60,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // LEVELS button
+              Padding(
+                padding: const EdgeInsets.only(bottom: 280.0),
+                child: Container(
+                  width: 350,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF5A9FD4).withOpacity(0.8), // 半透明蓝色
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const LevelsPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'L E V E L S',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'ICELAND',
+                        fontSize: 50,
                       ),
                     ),
                   ),
