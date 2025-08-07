@@ -73,6 +73,13 @@ class GameBloc implements BlocBase {
     _loadLevels();
   }
 
+  // Add a method to ensure levels are loaded
+  Future<void> ensureLevelsLoaded() async {
+    while (_maxLevel == 0) {
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
+  }
+
   //
   // The user wants to select a level.
   // We validate the level number and emit the requested Level
@@ -82,7 +89,10 @@ class GameBloc implements BlocBase {
   //  e.g.  bloc.setLevel(1).then(() => )
   //
   Future<Level> setLevel(int levelIndex) async {
-    _levelNumber = (levelIndex - 1).clamp(0, _maxLevel);
+    // Ensure levels are loaded before proceeding
+    await ensureLevelsLoaded();
+
+    _levelNumber = (levelIndex - 1).clamp(0, _maxLevel - 1);
 
     //
     // Initialize the Game
@@ -180,6 +190,8 @@ class GameBloc implements BlocBase {
         _timeLeftController.sink.add(_currentTime);
         if (_currentTime <= 0) {
           timer.cancel();
+          _gameIsOverController.sink
+              .add(false); // Send game over signal when time runs out
         }
       });
     }

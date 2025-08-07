@@ -21,6 +21,7 @@ import '../splash/game_over_splash.dart';
 import '../splash/game_reshuffling_splash.dart';
 import '../splash/game_splash.dart';
 import 'help_page.dart';
+import 'cheer_page.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({
@@ -797,6 +798,8 @@ class _GamePageState extends State<GamePage>
     _allowGesture = false;
 
     // Stop the timer and show the splash
+    _gameBloc.stopTimer();
+
     _gameSplash = OverlayEntry(
         opaque: false,
         builder: (BuildContext context) {
@@ -810,6 +813,20 @@ class _GamePageState extends State<GamePage>
               // as the game is over, let's leave the game
               Navigator.of(context).pop();
             },
+            onCheerUpPressed: success
+                ? null
+                : () {
+                    // For failure case, remove splash but stay in game page
+                    _gameSplash!.remove();
+                    _gameSplash = null;
+
+                    // Navigate to CheerPage
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const CheerPage(),
+                      ),
+                    );
+                  },
           );
         });
 

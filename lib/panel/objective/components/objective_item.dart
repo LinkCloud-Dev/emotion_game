@@ -31,7 +31,8 @@ class ObjectiveItem extends StatelessWidget {
           height: 32.0,
           child: tile.widget,
         ),
-        Text('${objective.count}', style: const TextStyle(color: Colors.white)),
+        Text('${objective.count}',
+            style: TextStyle(color: Colors.blue[700], fontSize: 30.0)),
       ],
     );
   }
