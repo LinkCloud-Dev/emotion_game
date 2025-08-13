@@ -9,6 +9,7 @@ import '../bloc/bloc_provider.dart';
 import '../bloc/game_bloc.dart';
 import '../animations/model/animations_resolver.dart';
 import '../compoents/crush_board.dart';
+import '../compoents/inventory_panel.dart';
 import '../model/array_2d.dart';
 import '../model/audio.dart';
 import '../model/combo.dart';
@@ -41,6 +42,8 @@ class _GamePageState extends State<GamePage>
   bool _allowGesture = false;
   StreamSubscription? _gameOverSubscription;
   bool? _gameOverReceived;
+  final GlobalKey<InventoryPanelState> _inventoryKey =
+      GlobalKey<InventoryPanelState>();
 
   ///记录触发手势的糖果
   Tile? _gestureFromTile;
@@ -149,6 +152,7 @@ class _GamePageState extends State<GamePage>
               _buildObjectivePanel(orientation),
               _buildBoard(),
               _buildTiles(),
+              _buildInventoryPanel(),
               // 添加test button
               Align(
                 alignment: Alignment.centerRight,
@@ -180,7 +184,8 @@ class _GamePageState extends State<GamePage>
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 300.0),
+                    padding: const EdgeInsets.only(
+                        bottom: 280.0), // Adjusted to avoid inventory
                     child: ScaleTransition(
                       scale: _helpBtnScaleAnimation,
                       child: ElevatedButton(
@@ -258,11 +263,25 @@ class _GamePageState extends State<GamePage>
     return Align(
       alignment: alignment,
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 50, left: 50),
+        padding: const EdgeInsets.only(
+            bottom: 170, left: 50), // Moved up to avoid inventory
         child: Transform.scale(
           scale: 1.4,
           child: const ObjectivePanel(),
         ),
+      ),
+    );
+  }
+
+  // Builds the inventory panel
+  Widget _buildInventoryPanel() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 50),
+        child: InventoryPanel(
+            key:
+                _inventoryKey), // Use stable key to prevent unnecessary rebuilds
       ),
     );
   }
@@ -820,12 +839,17 @@ class _GamePageState extends State<GamePage>
                     _gameSplash!.remove();
                     _gameSplash = null;
 
-                    // Navigate to CheerPage
-                    Navigator.of(context).push(
+                    // Navigate to CheerPage and refresh inventory on return
+                    Navigator.of(context)
+                        .push(
                       MaterialPageRoute(
                         builder: (_) => const CheerPage(),
                       ),
-                    );
+                    )
+                        .then((_) {
+                      // Refresh only the inventory without rebuilding the entire page
+                      _inventoryKey.currentState?.refreshInventory();
+                    });
                   },
           );
         });

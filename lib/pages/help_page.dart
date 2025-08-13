@@ -186,7 +186,22 @@ class _HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Calming text with fade animation
+                // Display text (moved above and larger)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    _displayText,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: 'ICELAND',
+                      fontSize: 70,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                // Calming text with fade animation (moved below)
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: Padding(
@@ -201,20 +216,6 @@ class _HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
                         color: Colors.white,
                         height: 1.5,
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Text(
-                    _displayText,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: 'ICELAND',
-                      fontSize: 60,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -248,7 +249,53 @@ class _HelpPageState extends State<HelpPage> with TickerProviderStateMixin {
             ),
           ),
         ),
+        // Question mark button in bottom right
+        floatingActionButton: FloatingActionButton(
+          mini: true,
+          backgroundColor: Colors.white.withOpacity(0.9),
+          foregroundColor: Colors.black,
+          onPressed: _showInfoDialog,
+          child: const Icon(Icons.help_outline, size: 24),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
+    );
+  }
+
+  void _showInfoDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF13102F),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          content: const Text(
+            'Click the microphone button to change the voice.\nThe therapist should swipe up after the client has blown out the candle.',
+            style: TextStyle(
+              fontFamily: 'ICELAND',
+              fontSize: 34,
+              color: Colors.white,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontFamily: 'ICELAND',
+                  fontSize: 24,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -78,6 +78,7 @@ flutter:
     - assets/images/deco/
     - assets/images/bombs/
     - assets/images/levels/
+    - assets/images/items/
     - assets/audio/
     - assets/levels.json
 

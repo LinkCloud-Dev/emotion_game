@@ -15,36 +15,36 @@ class StreamTimeCounter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     GameBloc gameBloc = BlocProvider.of<GameBloc>(context)!.bloc;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        const Icon(
-          Icons.timer,
-          color: Colors.white,
-          size: 50.0,
-        ),
-        const SizedBox(width: 8.0),
-        StreamBuilder<int>(
-            initialData: gameBloc.gameController.level.maxSeconds,
-            stream: gameBloc.timeLeft,
-            builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-              final int seconds = snapshot.data ?? 0;
-              final String minutesStr =
-                  (seconds ~/ 60).toString().padLeft(2, '0');
-              final String secondsStr =
-                  (seconds % 60).toString().padLeft(2, '0');
-              final Color color = seconds <= 10 ? Colors.red : Colors.white;
-              return Text(
-                '$minutesStr:$secondsStr',
-                style: TextStyle(
-                  fontFamily: 'ICELAND',
-                  color: color,
-                  fontSize: 80.0,
-                ),
-              );
-            }),
-      ],
+    return StreamBuilder<int>(
+      initialData: gameBloc.gameController.level.maxSeconds,
+      stream: gameBloc.timeLeft,
+      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+        final int seconds = snapshot.data ?? 0;
+        final String minutesStr = (seconds ~/ 60).toString().padLeft(2, '0');
+        final String secondsStr = (seconds % 60).toString().padLeft(2, '0');
+        final Color color = seconds <= 10 ? Colors.red : Colors.white;
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.timer,
+              color: color, // Icon color changes based on remaining time
+              size: 50.0,
+            ),
+            const SizedBox(width: 8.0),
+            Text(
+              '$minutesStr:$secondsStr',
+              style: TextStyle(
+                fontFamily: 'ICELAND',
+                color: color,
+                fontSize: 80.0,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

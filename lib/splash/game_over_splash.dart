@@ -145,7 +145,7 @@ class _GameOverSplashState extends State<GameOverSplash>
 
     // Colors for success (win) state
     Color backgroundColor =
-        widget.success ? Colors.green[100]! : Color(0xFFBCCBFF)!;
+        widget.success ? Colors.green[100]! : const Color(0xFFBCCBFF);
     Color borderColor = widget.success ? Colors.green[700]! : Colors.blue[700]!;
 
     // Check if this is the last level

@@ -1,5 +1,6 @@
 import 'package:candycrush/pages/home_page.dart';
 import 'package:flutter/material.dart';
+import '../model/inventory.dart';
 
 class CheerPage extends StatefulWidget {
   const CheerPage({super.key});
@@ -22,6 +23,109 @@ class _CheerPageState extends State<CheerPage> {
     setState(() {
       _selectedAnswer = answer;
     });
+  }
+
+  void _submitAnswer() async {
+    if (_selectedAnswer == null) return;
+
+    // Add helper to inventory
+    await InventoryService.addItem(InventoryService.helperItem);
+
+    // Show reward popup
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF13102F),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Yes! You are $_selectedAnswer, and you allow yourself to grow at your own pace.',
+                  style: TextStyle(
+                    fontFamily: 'ICELAND',
+                    fontSize: 34,
+                    color: Colors.yellow[300],
+                    fontWeight: FontWeight.bold,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  height: 2,
+                  width: double.infinity,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Here is your reward, a Helper. It can get rid of all your obstacles!',
+                  style: TextStyle(
+                    fontFamily: 'ICELAND',
+                    fontSize: 28,
+                    color: Colors.white,
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      'assets/images/items/helper.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.help,
+                            color: Colors.grey,
+                            size: 40,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close dialog
+                  // Navigate back to home page, clearing all previous routes
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                    (route) => false,
+                  );
+                },
+                child: const Text(
+                  'Continue',
+                  style: TextStyle(
+                    fontFamily: 'ICELAND',
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -65,12 +169,12 @@ class _CheerPageState extends State<CheerPage> {
               const SizedBox(height: 40),
 
               // Title text
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
                   'Fill in the blank to cheer yourself up!',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'ICELAND',
                     fontSize: 50,
                     fontWeight: FontWeight.bold,
@@ -175,27 +279,28 @@ class _CheerPageState extends State<CheerPage> {
 
                         const SizedBox(height: 40),
 
-                        // Selected answer display
+                        // Submit button
                         if (_selectedAnswer != null)
-                          Container(
-                            padding: const EdgeInsets.all(20.0),
-                            decoration: BoxDecoration(
-                              color: Colors.yellow[300]?.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.yellow[300]!,
-                                width: 2,
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _submitAnswer,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.yellow[300],
+                                foregroundColor: Colors.black,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              'I trust that I am a $_selectedAnswer person, and I allow myself to grow at my own pace.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'ICELAND',
-                                fontSize: 40,
-                                color: Colors.yellow[300],
-                                fontWeight: FontWeight.bold,
-                                height: 1.4,
+                              child: const Text(
+                                'Submit',
+                                style: TextStyle(
+                                  fontFamily: 'ICELAND',
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
